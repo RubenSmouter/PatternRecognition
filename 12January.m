@@ -1,5 +1,4 @@
 m = prnist([0:9],[1:25:1000]);
-
 data = seldat(m);
 %resizing images so every image is same size
 resized = im_resize(data,[128,128]);
@@ -15,9 +14,7 @@ dataset = remoutl(dataset);
 %Maybe using the softmax scaling can be a good idea.
 dataset = dataset*scalem(dataset,'variance');
 
-
-
-
+%%
 % Feature selection based on individual features
 % Do values of the feature differ significantly for different classes?
 % Following Paragraph 5.4 (with the modification of problem 5.4)
@@ -48,8 +45,6 @@ end
 plotf(dataset(:,14));
 
 
-[testdata,trainingdata] = gendat(dataset,.5);
-
 S_W = bsxfun(@sum,bsxfun(@times,Cov,reshape(N/sum(N),1,1,10)),3);
 S_B = Mean'*bsxfun(@times,Mean,N'/sum(N));
 S_M = cov(+dataset);
@@ -60,7 +55,7 @@ S_M2 = S_B + S_W;           %S_M2 and S_M don't perfectly match...
 % selection method. The best features are stored in the vector 'select'. 
 % The value of their selection criterion in the vector 'J1'.
 select = [];
-for i = 1:19
+for i = 1:5
     clear Performance
     for j = 1:19
         featloop = [select j];
@@ -72,19 +67,13 @@ for i = 1:19
     [J1(i),I] = max(Performance);
     select = [select I];
 end
+plotf(dataset(:,select));
 
 
-%
-w = knnc(trainingdata(:,[9 10 11 12 17]),4);
-
-sum(log(+(trainingdata(:,[9 10 11 12 17])*w)));
-sum(log(+(testdata(:,[9 10 11 12 17])*w)));
-
+%%
 %classifing, knnc as example
-for i = 1
-features = selectfeatures(:,[5 i]);
+features = dataset(:,select(1:2));
 figure;
 scatterd(features,'legend');
 w = knnc(features,4);
 hold on; plotc(w);
-end
